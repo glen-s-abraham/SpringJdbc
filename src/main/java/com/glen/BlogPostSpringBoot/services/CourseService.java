@@ -35,5 +35,19 @@ public class CourseService {
 		return arrayOfCourses;
 		
 	}
+
+	public boolean addNewCourse(Course newCourse) {
+		return courseDao.create(newCourse);
+	}
+
+	public boolean deleteById(int id) {
+		return courseDao.delete(id);
+		
+	}
+
+	public boolean updateCourse(Course editCourse, int id) {
+		
+		return courseDao.update(editCourse, id);
+	}
  
 }

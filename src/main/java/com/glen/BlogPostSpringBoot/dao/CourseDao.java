@@ -40,7 +40,7 @@ public class CourseDao implements DAO<Course>{
 	}
 
 	@Override
-	public void create(Course course) {
+	public boolean create(Course course) {
 		String sql = "INSERT INTO course(title,description,link) VALUES(?,?,?)";
 		int rowsAffected=jdbcTemplate.update(sql,
 				course.getTitle(),
@@ -48,7 +48,8 @@ public class CourseDao implements DAO<Course>{
 				course.getLink()
 		);
 		if(rowsAffected==1)
-			System.out.println("Course created");
+			return true;
+		return false;
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class CourseDao implements DAO<Course>{
 	}
 
 	@Override
-	public void update(Course course, int id) {
+	public boolean update(Course course, int id) {
 		String sql="UPDATE course SET title=?,description=?,link=? WHERE id=?";
 		int rowsAffected = jdbcTemplate.update(sql,
 				course.getTitle(),
@@ -81,16 +82,17 @@ public class CourseDao implements DAO<Course>{
 				id
 		);
 		if(rowsAffected==1)
-			System.out.println("Course updated");
+			return true;
+		return false;
 	}
 
 	@Override
-	public void delete(int id) {
+	public boolean delete(int id) {
 		String sql="DELETE FROM course WHERE id=?";
 		int rowsAffected=jdbcTemplate.update(sql,id);
 		if(rowsAffected==1)
-			System.out.println("Course deleted");
-		
+			return true;
+		return false;
 	}
 
 }

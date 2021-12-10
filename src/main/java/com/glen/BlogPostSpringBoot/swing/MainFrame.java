@@ -11,6 +11,7 @@ import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,7 @@ public class MainFrame extends JFrame{
 	JLabel idlbl,titlelbl,descriptionlbl,linklbl;
 	JTextField idtxt,titletxt,descriptiontxt,linktxt;
 	JButton addBtn,editBtn,deleteBtn,refreshBtn;
+	DefaultTableModel courseModel;
 
 	@Autowired
 	public MainFrame(CourseService courseService) throws HeadlessException {
@@ -69,8 +71,63 @@ public class MainFrame extends JFrame{
 	private void initListeners() {
 		coursesTbl.getSelectionModel()
 		.addListSelectionListener(e->{
-			System.out.println(coursesTbl.getSelectedRow());
-			setFormValues(coursesTbl.getSelectedRow());
+			if(coursesTbl.getSelectedRow()!=-1)
+				setFormValues(coursesTbl.getSelectedRow());
+		});
+		
+		addBtn.addActionListener((ae)->{
+			if(titletxt.getText()!=""
+					&& descriptiontxt.getText()!=""
+					&& linktxt.getText()!=""
+			) {
+				Course newCourse = new Course(
+						titletxt.getText(),
+						descriptiontxt.getText(),
+						linktxt.getText()
+				);
+				if(courseService.addNewCourse(newCourse))
+					refreshTable();
+			}
+			
+		});
+		
+		deleteBtn.addActionListener(ae->{
+			int id = Integer.parseInt(
+					(String) coursesTbl
+					.getValueAt(coursesTbl.getSelectedRow(), 0)
+			);
+			if(id>0) {
+				if(courseService.deleteById(id)) {
+					refreshTable();
+				}
+				
+			}
+		});
+		
+		editBtn.addActionListener(ae->{
+			if(titletxt.getText()!=""
+					&& descriptiontxt.getText()!=""
+					&& linktxt.getText()!=""
+			) {
+				Course editCourse = new Course(
+						titletxt.getText(),
+						descriptiontxt.getText(),
+						linktxt.getText()
+				);
+				
+				int id= Integer.parseInt(
+						(String) coursesTbl
+						.getValueAt(coursesTbl.getSelectedRow(), 0));
+				if(id>1) {
+					if(courseService.updateCourse(editCourse,id))
+						refreshTable();
+				}
+				
+			}
+		});
+		
+		refreshBtn.addActionListener(ae->{
+			refreshTable();
 		});
 		
 	}
@@ -115,14 +172,25 @@ public class MainFrame extends JFrame{
 		
 	}
 	
-
+	
 	private void initTable() {
-		String cols[]={"ID","TITLE","DESCRIPTION","LINK"};
-		String[][] data = courseService.getAllCoursesAsStringArray();
-		coursesTbl = new JTable(data,cols);
+		generateCourseModel();
+		coursesTbl = new JTable(courseModel);
 		pane = new JScrollPane(coursesTbl);
 		add(pane);
 		
+	}
+	
+	private void generateCourseModel() {
+		String cols[]={"ID","TITLE","DESCRIPTION","LINK"};
+		String[][] data = courseService.getAllCoursesAsStringArray();
+		courseModel = new DefaultTableModel(data, cols);
+	}
+	
+	private void refreshTable() {
+		generateCourseModel();
+		coursesTbl.setModel(courseModel);
+		coursesTbl.repaint();
 	}
 	
 

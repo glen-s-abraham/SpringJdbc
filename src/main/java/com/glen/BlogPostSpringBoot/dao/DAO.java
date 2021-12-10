@@ -5,8 +5,8 @@ import java.util.Optional;
 
 public interface DAO<T> {
 	List<T> list();
-	void create(T t);
+	boolean create(T t);
 	Optional<T> get(int id);
-	void update(T t,int id);
-	void delete(int id);
+	boolean update(T t,int id);
+	boolean delete(int id);
 }
